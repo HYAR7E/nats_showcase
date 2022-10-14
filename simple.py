@@ -25,12 +25,10 @@ async def main():
         "last_modifier": service,
         field: data})
       await msg.respond(b"Updated successfully")
-    else:
-      await msg.respond(b"Subject unsupported")
     print("site", site)
 
   # Subscribe
-  await nc.subscribe("pfx.*.0041.12.*", cb=handle_message)
+  await nc.subscribe("pfx.*.*.12.*", cb=handle_message)
   # pfx.<service>.<acn>.<acc>.<field>
   # pfx.api.0041.12.name
 

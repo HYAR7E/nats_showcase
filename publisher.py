@@ -1,14 +1,16 @@
 from yachalk import chalk
 import asyncio
 from nats.aio.client import Client as NATSClient
-from nats.errors import NoRespondersError
+from nats.errors import NoRespondersError, TimeoutError
 
 messages = [
-  {"subject": "pfx.api.0041.12.name", "data": b"New Site"},
-  {"subject": "pfx.api.0041.12.admin", "data": b"Luis"},
-  {"subject": "pfx.api.0041.12.name", "data": b"My Site"},
-  {"subject": "pfx.asset_mgmt.0041.12.admin", "data": b"Neldo"},
-  {"subject": "pfx.site_metrics.0041.10.admin", "data": b"None"},
+  {"subject": "pfx.api.0041.12.name", "data": b"New Site"}, # Update name
+  {"subject": "pfx.api.0041.12.admin", "data": b"Luis"}, # Update admin
+  {"subject": "pfx.asset_mgmt.0041.12.admin", "data": b"Neldo"}, # Update service
+  {"subject": "pfx.site_metrics.0041.10.admin", "data": b"None"}, # Fail ACC
+  {"subject": "pfx.site_metrics.0041.12.acn", "data": b"0001"}, # Update ACN
+  {"subject": "pfx.site_metrics.0041.12.name", "data": b"New Site"}, # Fail ACN
+  {"subject": "pfx.site_metrics.0001.12.name", "data": b"Site #0001"}, # Update name
 ]
 
 
@@ -22,7 +24,9 @@ async def main():
     try:
       response = await nc.request(message["subject"], message["data"])
     except NoRespondersError:
-      print(chalk.red_bright("ⅹ No response"))
+      print(chalk.red_bright("ⅹ Subject not found"))
+    except TimeoutError:
+      print(chalk.red_bright("⏰ Subject didn't respond"))
     else:
       print(chalk.cyan_bright("✔", response.data))
     await nc.flush()
