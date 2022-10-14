@@ -22,9 +22,9 @@ async def main():
     try:
       response = await nc.request(message["subject"], message["data"])
     except NoRespondersError:
-      print("->", chalk.red_bright("ⅹ No response"))
+      print(chalk.red_bright("ⅹ No response"))
     else:
-      print("->", chalk.cyan_bright("✔", response.data))
+      print(chalk.cyan_bright("✔", response.data))
     await nc.flush()
     input()
 
