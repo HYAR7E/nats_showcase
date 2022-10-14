@@ -1,6 +1,7 @@
 from yachalk import chalk
 import asyncio
 from nats.aio.client import Client as NATSClient
+from nats.errors import NoRespondersError
 
 messages = [
   {"subject": "pfx.api.0041.12.name", "data": b"New Site"},
@@ -18,7 +19,12 @@ async def main():
   # Publish messages
   for message in messages:
     print("Send", chalk.green(message["subject"]), chalk.yellow(message["data"]))
-    await nc.publish(message["subject"], message["data"])
+    try:
+      response = await nc.request(message["subject"], message["data"])
+    except NoRespondersError:
+      print("->", chalk.red_bright("ⅹ No response"))
+    else:
+      print("->", chalk.cyan_bright("✔", response.data))
     await nc.flush()
     input()
 
