@@ -4,11 +4,10 @@ from nats.aio.client import Client as NATSClient
 from nats.errors import NoRespondersError
 
 messages = [
-  {"subject": "pfx.api.0041.12.name", "data": b"New Site"},
-  {"subject": "pfx.api.0041.12.admin", "data": b"Luis"},
-  {"subject": "pfx.api.0041.12.name", "data": b"My Site"},
-  {"subject": "pfx.asset_mgmt.0041.12.admin", "data": b"Neldo"},
-  {"subject": "pfx.site_metrics.0041.10.admin", "data": b"None"},
+  {"subject": "pfx.api.avg", "data": b"[1, 2, 3, 4, 5]"},
+  {"subject": "pfx.api.avg", "data": b"[9, 18, 15, 23, 8]"},
+  {"subject": "pfx.api.sum", "data": b"[1, 2, 3, 4, 5]"},
+  {"subject": "pfx.api.sum", "data": b"[9, 18, 15, 23, 8]"},
 ]
 
 

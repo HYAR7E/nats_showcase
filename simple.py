@@ -3,36 +3,26 @@ import asyncio
 from nats.aio.client import Client as NATSClient
 from nats.aio.msg import Msg
 
-site = {
-  "acn": "0041",
-  "acc": "12",
-  "name": "Generic Site #12",
-  "admin": "Neldo",
-  "last_modifier": ""
-}
-print("site", site)
-
 async def main():
   nc = NATSClient()
   await nc.connect("nats://0.0.0.0:4222")
 
-  # Handle message fn
-  async def handle_message(msg: Msg):
-    _, service, acn, acc, field = msg.subject.split(".")
-    if acn == site["acn"] and acc == site["acc"]:
-      data = msg.data.decode("utf-8")
-      site.update({
-        "last_modifier": service,
-        field: data})
-      await msg.respond(b"Updated successfully")
-    else:
-      await msg.respond(b"Subject unsupported")
-    print("site", site)
+  # Handlers
+  async def handle_msg_avg(msg: Msg):
+    data: dict = json.loads(msg.data.decode("utf-8"))
+    print("data", data)
+    average = sum(data) / len(data)
+    await msg.respond(bytes(str(average), "utf-8"))
+
+  async def handle_msg_sum(msg: Msg):
+    data: dict = json.loads(msg.data.decode("utf-8"))
+    print("data", data)
+    total = sum(data)
+    await msg.respond(bytes(str(total), "utf-8"))
 
   # Subscribe
-  await nc.subscribe("pfx.*.0041.12.*", cb=handle_message)
-  # pfx.<service>.<acn>.<acc>.<field>
-  # pfx.api.0041.12.name
+  await nc.subscribe("pfx.api.avg", cb=handle_msg_avg)
+  await nc.subscribe("pfx.api.sum", cb=handle_msg_sum)
 
 
 if __name__ == "__main__":
