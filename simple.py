@@ -1,4 +1,3 @@
-import json
 import asyncio
 from nats.aio.client import Client as NATSClient
 from nats.aio.msg import Msg
