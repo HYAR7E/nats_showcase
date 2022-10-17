@@ -1,6 +1,7 @@
 import json
 import asyncio
 from nats.aio.client import Client as NATSClient
+from nats.aio.msg import Msg
 
 site = {
   "acn": "0041",
@@ -18,7 +19,7 @@ async def main():
   js = nc.jetstream()
 
   # Handle message fn
-  async def handle_message(msg):
+  async def handle_message(msg: Msg):
     global counter
     counter = counter + 1
     _, service, acn, acc, field = msg.subject.split(".")
