@@ -1,6 +1,7 @@
 import asyncio
 from nats.aio.client import Client as NATSClient
 from nats.aio.msg import Msg
+from time import sleep
 
 site = {
   "acn": "0041",
@@ -28,26 +29,22 @@ async def main():
         "last_modifier": service,
         field: data})
     print(f"#{counter} site", site)
+    await msg.ack()
 
   # Get unread messages
-  print("---- jetstream ")
-  psub = await js.pull_subscribe("pfx.*.0041.12.*", durable="asset-mgmt")
-  while True:
+  async def get_stream_msgs():
+    psub = await js.pull_subscribe("pfx.*.0041.12.*", durable="asset-mgmt")
     try:
-      unread_msgs = await psub.fetch()
+      unread_msgs = await psub.fetch(1000)
     except:
-      break
-    for unread_msg in unread_msgs:
-      await handle_message(unread_msg)
-      await unread_msg.ack()
-  await js.purge_stream("error_backup")
+      pass
+    else:
+      for unread_msg in unread_msgs:
+        await handle_message(unread_msg)
 
-  # Subscribe
-  print("---- subscription ")
-  await js.subscribe("pfx.*.0041.12.*", cb=handle_message)
-  # pfx.<service>.<acn>.<acc>.<field>
-  # pfx.api.0041.12.name
-
+  while True:
+    sleep(2)
+    await get_stream_msgs()
 
 if __name__ == "__main__":
   loop = asyncio.get_event_loop()
