@@ -1,6 +1,6 @@
-import json
 import asyncio
 from nats.aio.client import Client as NATSClient
+from nats.aio.msg import Msg
 
 site = {
   "acn": "0041",
@@ -16,7 +16,7 @@ async def main():
   await nc.connect("nats://0.0.0.0:4222")
 
   # Handle message fn
-  async def handle_message(msg):
+  async def handle_message(msg: Msg):
     _, service, acn, acc, field = msg.subject.split(".")
     if acn == site["acn"] and acc == site["acc"]:
       data = msg.data.decode("utf-8")
