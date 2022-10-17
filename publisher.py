@@ -10,16 +10,17 @@ messages = [
   {"subject": "pfx.site_metrics.0041.10.admin", "data": b"None"},
 ]
 
-
 async def main():
   nc = NATSClient()
   await nc.connect("nats://0.0.0.0:4222")
+  js = nc.jetstream()
 
   # Publish messages
   for message in messages:
     print("Send", chalk.green(message["subject"]), chalk.yellow(message["data"]))
-    await nc.publish(message["subject"], message["data"])
-    await nc.flush()
+    ack = await js.publish(message["subject"], message["data"])
+    print("ack", f"#{ack.seq} {ack.stream}")
+    # await nc.flush()
     input()
 
   # Close connection

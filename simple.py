@@ -10,23 +10,41 @@ site = {
   "last_modifier": ""
 }
 print("site", site)
+counter = 0
 
 async def main():
   nc = NATSClient()
   await nc.connect("nats://0.0.0.0:4222")
+  js = nc.jetstream()
 
   # Handle message fn
   async def handle_message(msg):
+    global counter
+    counter = counter + 1
     _, service, acn, acc, field = msg.subject.split(".")
     if acn == site["acn"] and acc == site["acc"]:
       data = msg.data.decode("utf-8")
       site.update({
         "last_modifier": service,
         field: data})
-    print("site", site)
+    print(f"#{counter} site", site)
+
+  # Get unread messages
+  print("---- jetstream ")
+  psub = await js.pull_subscribe("pfx.*.0041.12.*", durable="asset-mgmt")
+  while True:
+    try:
+      unread_msgs = await psub.fetch()
+    except:
+      break
+    for unread_msg in unread_msgs:
+      await handle_message(unread_msg)
+      await unread_msg.ack()
+  await js.purge_stream("error_backup")
 
   # Subscribe
-  await nc.subscribe("pfx.*.0041.12.*", cb=handle_message)
+  print("---- subscription ")
+  await js.subscribe("pfx.*.0041.12.*", cb=handle_message)
   # pfx.<service>.<acn>.<acc>.<field>
   # pfx.api.0041.12.name
 
