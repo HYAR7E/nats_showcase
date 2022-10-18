@@ -1,0 +1,43 @@
+services:
+  jetstream:
+    image: nats:2.9.3-alpine
+    container_name: jetstream
+    command: -js
+    ports:
+      - 4222:4222
+  streaming:
+    image: natsio/nats-box
+    volumes:
+      - ./:/root/tmp
+    command: /root/tmp/boot_streaming.sh
+    environment:
+      - NATS_HOST=jetstream
+    depends_on:
+      - jetstream
+  pfx-api:
+    build:
+      target: api
+    environment:
+      - NATS_HOST=jetstream
+      - NATS_PORT=4222
+    depends_on:
+      streaming:
+        condition: service_completed_successfully
+  pfx-asset_mgmt:
+    build:
+      target: asset_mgmt
+    environment:
+      - NATS_HOST=jetstream
+      - NATS_PORT=4222
+    depends_on:
+      streaming:
+        condition: service_completed_successfully
+  pfx-site_metrics:
+    build:
+      target: site_metrics
+    environment:
+      - NATS_HOST=jetstream
+      - NATS_PORT=4222
+    depends_on:
+      streaming:
+        condition: service_completed_successfully
