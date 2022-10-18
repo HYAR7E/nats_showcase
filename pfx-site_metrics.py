@@ -9,7 +9,7 @@ from nats.aio.msg import Msg
 from yachalk import chalk
 
 # Subject: pfx.<acn>.<acc>.site
-# Data: { name: str, admin: str, updated_at: datetime }
+# Data: { name: str, updated_at: datetime }
 now_str = lambda: dt.datetime.now().strftime("%Y-%m-%d %H:%M")
 sites = [
   {
@@ -17,28 +17,24 @@ sites = [
     "acc": "10",
     "updated_at": now_str(),
     "name": "Generic Site #10",
-    "admin": "Neldo"
   },
   {
     "acn": "0039",
     "acc": "12",
     "updated_at": now_str(),
     "name": "Generic Site #12",
-    "admin": "Neldo"
   },
   {
     "acn": "0041",
     "acc": "10",
     "updated_at": now_str(),
     "name": "Specific Site #10",
-    "admin": "Neldo"
   },
   {
     "acn": "0041",
     "acc": "12",
     "updated_at": now_str(),
     "name": "Specific Site #12",
-    "admin": "Neldo"
   },
 ]
 counter = 0
@@ -67,7 +63,6 @@ async def main():
       data = json.loads(msg.data.decode("utf-8"))
       site.update({
         "name": data["name"],
-        "admin": data["admin"],
         "updated_at": now_str()})
       print(f"#{counter}", chalk.green(site))
       await msg.ack()
@@ -84,14 +79,14 @@ async def main():
       for unread_msg in unread_msgs:
         await handle_message(unread_msg)
 
-  # Sleeps 10s every 10 messages
+  # Sleeps 20s every 10 messages
   i = 0
   while True:
     i = i + 1
     await get_stream_msgs()
-    if i % 10 == 0:
+    if i % 6 == 0:
       print(chalk.red("Restarting..."))
-      sleep(10)
+      sleep(20)
       print(chalk.green("Successfully restarted"))
     else:
       sleep(2)

@@ -17,28 +17,24 @@ sites = [
     "acc": "10",
     "updated_at": now_str(),
     "name": "Generic Site #10",
-    "admin": "Neldo"
   },
   {
     "acn": "0039",
     "acc": "12",
     "updated_at": now_str(),
     "name": "Generic Site #12",
-    "admin": "Neldo"
   },
   {
     "acn": "0041",
     "acc": "10",
     "updated_at": now_str(),
     "name": "Specific Site #10",
-    "admin": "Neldo"
   },
   {
     "acn": "0041",
     "acc": "12",
     "updated_at": now_str(),
     "name": "Specific Site #12",
-    "admin": "Neldo"
   },
 ]
 counter = 0
@@ -67,7 +63,6 @@ async def main():
       data = json.loads(msg.data.decode("utf-8"))
       site.update({
         "name": data["name"],
-        "admin": data["admin"],
         "updated_at": now_str()})
       print(f"#{counter}", chalk.green(site))
       await msg.ack()
@@ -78,7 +73,6 @@ async def main():
     try:
       print(chalk.yellow("Loading next batch"))
       unread_msgs = await psub.fetch(5)
-      print(unread_msgs[0])
     except:
       pass
     else:
