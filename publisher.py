@@ -1,3 +1,4 @@
+from time import sleep
 from yachalk import chalk
 import asyncio
 from nats.aio.client import Client as NATSClient
@@ -16,11 +17,15 @@ async def main():
   await nc.connect("nats://0.0.0.0:4222")
 
   # Publish messages
-  for message in messages:
-    print("Send", chalk.green(message["subject"]), chalk.yellow(message["data"]))
+  inx = 0
+  length = len(messages)
+  while True:
+    message = messages[inx % length]
     await nc.publish(message["subject"], message["data"])
     await nc.flush()
-    input()
+    print("Send", chalk.green(message["subject"]), chalk.yellow(message["data"]))
+    sleep(2)
+    inx += 1
 
   # Close connection
   await nc.flush()
